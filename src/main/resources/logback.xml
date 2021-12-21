@@ -1,0 +1,86 @@
+<configuration debug="true" scan="true" scanPeriod="5 seconds">
+    <!--自定义内容-->
+    <!--自定义日志输出路径-->
+    <property name="LOG_HOME" value="logs"/>
+    <!--自定义日志存留天数-->
+    <property name="LOG_MAX_HISTORY" value="90"/>
+    <!--自定义单个日志文件的大小 超过将生成新文件-->
+    <property name="LOG_MAX_FILE_SIZE" value="500MB"/>
+    <!--自定义日志总大小 超过将删除最旧存档-->
+    <property name="LOG_TOTAL_SIZE_CAP" value="10GB"/>
+
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder>
+            <pattern>[%X{REQUEST_ID}] %d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n</pattern>
+        </encoder>
+<!--        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">-->
+<!--            <layout class="com.gx.logbackstudy.conf.logback.MaskingPatternLayout">-->
+<!--                <maskPattern>\"phone\"\s*:\s*\"(.*?)\"</maskPattern> &lt;!&ndash; SSN JSON pattern &ndash;&gt;-->
+<!--                <maskPattern>\"address\"\s*:\s*\"(.*?)\"</maskPattern> &lt;!&ndash; Address JSON pattern &ndash;&gt;-->
+<!--                <pattern>%-5p [%d{ISO8601,UTC}] [%thread] %c: %m%n%rootException</pattern>-->
+<!--            </layout>-->
+<!--        </encoder>-->
+    </appender>
+
+    <!--APPENDER ： INFO级别的文件日志-->
+    <appender name="FILE_INFO_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--自定义输出过滤器 对于ERROR级别的日志 ACCEPT接收-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+
+        <!--自定义滚动策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/info.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--单个文件大小上限-->
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <!--保存多少天的日志-->
+            <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${LOG_TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+
+        <!--输出格式-->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg %n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!--APPENDER ： ERROR级别的文件日志-->
+    <appender name="FILE_ERROR_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--自定义输出时的级别过滤器 对于低于ERROR级别的日志 全部拒绝-->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+
+        <!--自定义滚动策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <!--单个文件大小上限-->
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+
+            <!--保存多少天的日志-->
+            <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${LOG_TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+
+        <!--输出格式-->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg %n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+
+
+    <!--LOGGER-->
+    <!--ROOT级别的LOGGER-->
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE_INFO_LOG"/>
+    </root>
+</configuration>
